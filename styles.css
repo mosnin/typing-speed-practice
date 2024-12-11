@@ -110,6 +110,38 @@ body {
     margin: calc(var(--header-height) + 2rem) auto 2rem auto;
 }
 
+.game-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.text-display {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    background: #f5f5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 100px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.text-input {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1.1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: white;
+}
+
 /* Mode Selection Screen */
 #modeSelection {
     display: none;
@@ -715,6 +747,29 @@ button:disabled {
     }
 
     .footer-section p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-content {
+        padding: 0.5rem;
+    }
+
+    .text-display {
+        font-size: 1rem;
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+        min-height: 80px;
+    }
+
+    .text-input {
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
+
+    .primary-button {
+        padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
     }
 }

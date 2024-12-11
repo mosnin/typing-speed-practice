@@ -102,56 +102,44 @@ function showAISpeedSelection() {
 }
 
 function startMode(mode, aiSpeed = 0) {
-    // Reset game state
-    resetGame();
-    gameState.mode = mode;
-    gameState.aiSpeed = aiSpeed;
-    gameState.currentWordIndex = 0;
-
-    // Hide all screens first
     hideAllScreens();
-
-    // Show game screen and hide mode selection completely
-    document.getElementById('modeSelection').classList.remove('active');
-    document.getElementById('gameScreen').classList.add('active');
+    
+    // Set game state
+    gameState.mode = mode;
+    gameState.isActive = false;
+    gameState.aiSpeed = aiSpeed;
+    
+    // Show game screen
+    const gameScreen = document.getElementById('gameScreen');
+    gameScreen.classList.add('active');
     
     // Update mode indicator
     modeIndicator.textContent = getModeText(mode);
     
+    // Reset game
+    resetGame();
+    
     // Show/hide UI elements based on mode
-    document.getElementById('levelBox').style.display = mode === 'challenge' ? 'block' : 'none';
-    raceUI.style.display = mode === 'race' ? 'block' : 'none';
-    zenUI.style.display = 'none';
+    if (mode === 'race') {
+        raceUI.classList.remove('hidden');
+        zenUI.classList.add('hidden');
+    } else if (mode === 'zen') {
+        zenUI.classList.remove('hidden');
+        raceUI.classList.add('hidden');
+        startZenMode();
+        return;
+    } else {
+        raceUI.classList.add('hidden');
+        zenUI.classList.add('hidden');
+    }
     
-    // Set up the game
-    const newText = getNewText();
-    textDisplay.textContent = newText;
-    textDisplay.style.display = 'block'; // Ensure visibility
-    
+    // Set up the text display
+    const text = getNewText();
+    textDisplay.textContent = text;
     textInput.value = '';
     textInput.disabled = false;
-    textInput.style.display = 'block'; // Ensure visibility
-    
-    startButton.style.display = mode === 'race' ? 'none' : 'block';
+    startButton.style.display = 'block';
     nextButton.style.display = 'none';
-    
-    // Focus on text input
-    setTimeout(() => {
-        textInput.focus();
-        // Scroll to ensure text is visible on mobile
-        textDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
-    
-    // Special setup for race mode
-    if (mode === 'race') {
-        gameState.aiSpeed = aiSpeed;
-        playerProgress.style.width = '0%';
-        aiProgress.style.width = '0%';
-        textInput.disabled = false;
-        gameState.isActive = true;
-        gameState.startTime = Date.now();
-        startRaceProgress();
-    }
 }
 
 function hideAllScreens() {
@@ -301,29 +289,51 @@ function nextText() {
 }
 
 function resetGame() {
+    // Reset game state
     gameState.isActive = false;
     gameState.startTime = null;
     gameState.currentWordIndex = 0;
-    gameState.aiProgress = 0;
-    gameState.playerProgress = 0;
-    
-    if (gameState.raceInterval) {
-        clearInterval(gameState.raceInterval);
-        gameState.raceInterval = null;
-    }
+    gameState.totalWords = 0;
     
     // Reset UI elements
-    textDisplay.style.display = 'block';
-    textInput.style.display = 'block';
-    textInput.value = '';
-    textInput.disabled = true;
-    
     wpmDisplay.textContent = '0';
     timeDisplay.textContent = '0s';
     
-    // Reset progress bars
-    if (playerProgress) playerProgress.style.width = '0%';
-    if (aiProgress) aiProgress.style.width = '0%';
+    if (gameState.mode === 'challenge') {
+        levelDisplay.textContent = gameState.level;
+        levelBox.style.display = 'block';
+    } else {
+        levelBox.style.display = 'none';
+    }
+    
+    // Reset text input
+    textInput.value = '';
+    textInput.disabled = false;
+    
+    // Reset race mode elements if in race mode
+    if (gameState.mode === 'race') {
+        playerProgress.style.width = '0%';
+        aiProgress.style.width = '0%';
+        if (gameState.raceInterval) {
+            clearInterval(gameState.raceInterval);
+            gameState.raceInterval = null;
+        }
+    }
+    
+    // Set new text
+    const text = getNewText();
+    textDisplay.textContent = text;
+    
+    // Show start button
+    startButton.style.display = 'block';
+    nextButton.style.display = 'none';
+    
+    // Focus on text input
+    setTimeout(() => {
+        textInput.focus();
+        // Ensure text is visible on mobile
+        textDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
 }
 
 function showMenu() {
