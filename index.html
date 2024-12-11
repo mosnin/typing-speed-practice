@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Challenge</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-container">
+            <div class="logo" onclick="showMenu()">
+                <i class="fas fa-keyboard"></i>
+                <span>Typing Speed Practice</span>
+            </div>
+            <div class="nav-links" style="display: none;">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Typing Speed Challenge</h1>
+            
+            <!-- Mode Selection Screen -->
+            <div id="modeSelection" class="screen active">
+                <div class="mode-buttons">
+                    <button id="practiceMode" class="mode-button">
+                        <h2>Practice Mode</h2>
+                        <p>Practice at your own pace</p>
+                    </button>
+                    <button id="challengeMode" class="mode-button">
+                        <h2>Challenge Mode</h2>
+                        <p>Test your limits with increasing difficulty</p>
+                    </button>
+                    <button id="raceMode" class="mode-button">
+                        <h2>Race Mode</h2>
+                        <p>Race against an AI opponent</p>
+                    </button>
+                    <button id="zenMode" class="mode-button">
+                        <h2>Zen Mode</h2>
+                        <p>Type freely and measure your speed</p>
+                    </button>
+                </div>
+                <!-- AI Speed Selection for Race Mode -->
+                <div id="aiSpeedSelection" class="speed-selection hidden">
+                    <h3>Select AI Speed</h3>
+                    <div class="speed-buttons">
+                        <button class="speed-btn" data-speed="30">Beginner (30 WPM)</button>
+                        <button class="speed-btn" data-speed="50">Intermediate (50 WPM)</button>
+                        <button class="speed-btn" data-speed="70">Advanced (70 WPM)</button>
+                        <button class="speed-btn" data-speed="90">Expert (90 WPM)</button>
+                    </div>
+                    <button id="backFromSpeed" class="back-button">← Back to Menu</button>
+                </div>
+            </div>
+
+            <!-- Game Screen -->
+            <div id="gameScreen" class="screen">
+                <div class="game-header">
+                    <button id="backToMenu" class="back-button">← Menu</button>
+                    <div id="modeIndicator" class="mode-indicator">Practice Mode</div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <span id="wpm">0</span>
+                        <label>WPM</label>
+                    </div>
+                    <div class="stat-box">
+                        <span id="accuracy">100%</span>
+                        <label>Accuracy</label>
+                    </div>
+                    <div class="stat-box">
+                        <span id="time">60</span>
+                        <label>Time Left</label>
+                    </div>
+                    <div class="stat-box" id="levelBox" style="display: none;">
+                        <span id="level">1</span>
+                        <label>Level</label>
+                    </div>
+                </div>
+
+                <!-- Zen Mode UI -->
+                <div id="zenUI" class="zen-container hidden">
+                    <div class="zen-stats">
+                        <div class="stat-box">
+                            <span id="zenWPM">0</span>
+                            <label>WPM</label>
+                        </div>
+                        <div class="stat-box">
+                            <span id="zenTime">0:00</span>
+                            <label>Time</label>
+                        </div>
+                        <div class="stat-box">
+                            <span id="zenWordCount">0</span>
+                            <label>Words</label>
+                        </div>
+                    </div>
+                    <div class="zen-input-container">
+                        <textarea id="zenInput" placeholder="Start typing anything..." class="zen-textarea"></textarea>
+                    </div>
+                </div>
+
+                <!-- Race Mode UI -->
+                <div id="raceUI" class="race-container hidden">
+                    <div class="race-progress">
+                        <div class="racer player">
+                            <div class="racer-label">You</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill player-progress"></div>
+                            </div>
+                        </div>
+                        <div class="racer ai">
+                            <div class="racer-label">AI</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ai-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-display" id="textDisplay">
+                    Select a mode to begin...
+                </div>
+                <textarea id="textInput" placeholder="Start typing here..." disabled></textarea>
+                <div class="game-buttons">
+                    <button id="startButton">Start Test</button>
+                    <button id="nextButton" class="hidden">Next Text →</button>
+                </div>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="gameOverScreen" class="screen">
+                <h2>Game Over!</h2>
+                <div class="final-stats">
+                    <div class="stat-box">
+                        <span id="finalWpm">0</span>
+                        <label>Final WPM</label>
+                    </div>
+                    <div class="stat-box">
+                        <span id="finalAccuracy">0%</span>
+                        <label>Final Accuracy</label>
+                    </div>
+                    <div class="stat-box" id="finalLevelBox" style="display: none;">
+                        <span id="finalLevel">1</span>
+                        <label>Highest Level</label>
+                    </div>
+                </div>
+                <button id="playAgain">Play Again</button>
+                <button id="returnToMenu">Return to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h2>Typing Speed Practice</h2>
+                <p>Improve your typing speed and accuracy with our free online typing practice tool. Whether you're a beginner aiming to increase your WPM (Words Per Minute) or an advanced typist looking to break speed records, our typing speed test and practice modes help you achieve your goals.</p>
+                <p>Features multiple practice modes including Race Mode to compete against AI, Challenge Mode to test your limits, and Zen Mode for relaxed typing practice. Track your WPM, accuracy, and progress in real-time.</p>
+            </div>
+            <div class="footer-section">
+                <p class="copyright"> 2024 Typing Speed Practice - Free Online Typing Test and Practice</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
