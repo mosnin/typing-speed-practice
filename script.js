@@ -123,6 +123,11 @@ function startMode(mode, aiSpeed = 0) {
     if (mode === 'race') {
         raceUI.classList.remove('hidden');
         zenUI.classList.add('hidden');
+        startButton.style.display = 'none';
+        textInput.disabled = false;
+        gameState.isActive = true;
+        gameState.startTime = Date.now();
+        startRaceProgress();
     } else if (mode === 'zen') {
         zenUI.classList.remove('hidden');
         raceUI.classList.add('hidden');
@@ -135,11 +140,32 @@ function startMode(mode, aiSpeed = 0) {
     
     // Set up the text display
     const text = getNewText();
-    textDisplay.textContent = text;
-    textInput.value = '';
-    textInput.disabled = false;
-    startButton.style.display = 'block';
-    nextButton.style.display = 'none';
+    if (textDisplay) {
+        textDisplay.textContent = text;
+        // Make sure text is visible
+        textDisplay.style.display = 'block';
+        textDisplay.style.visibility = 'visible';
+        textDisplay.style.opacity = '1';
+    }
+    
+    // Set up input
+    if (textInput) {
+        textInput.value = '';
+        textInput.disabled = false;
+        textInput.style.display = 'block';
+    }
+    
+    // Show/hide buttons
+    if (startButton) startButton.style.display = 'block';
+    if (nextButton) nextButton.style.display = 'none';
+    
+    // Focus and scroll
+    setTimeout(() => {
+        if (textInput) {
+            textInput.focus();
+            textDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }, 100);
 }
 
 function hideAllScreens() {
@@ -157,6 +183,11 @@ function getModeText(mode) {
         case 'zen': return 'Zen Mode';
         default: return 'Unknown Mode';
     }
+}
+
+function getNewText() {
+    const index = Math.floor(Math.random() * texts.length);
+    return texts[index];
 }
 
 function startTest() {
@@ -272,12 +303,6 @@ function checkTyping() {
     // Update time display
     const secondsElapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
     timeDisplay.textContent = secondsElapsed + 's';
-}
-
-function getNewText() {
-    const index = Math.floor(Math.random() * texts.length);
-    const text = texts[index];
-    textDisplay.textContent = text;
 }
 
 function nextText() {
