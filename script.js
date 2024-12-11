@@ -116,13 +116,18 @@ function startMode(mode, aiSpeed = 0) {
     // Update mode indicator
     modeIndicator.textContent = getModeText(mode);
     
-    // Reset game
+    // Reset game state
     resetGame();
     
-    // Show/hide UI elements based on mode
+    // Hide all mode UIs first
+    const practiceUI = document.getElementById('practiceUI');
+    if (practiceUI) practiceUI.classList.add('hidden');
+    if (raceUI) raceUI.classList.add('hidden');
+    if (zenUI) zenUI.classList.add('hidden');
+    
+    // Show appropriate UI based on mode
     if (mode === 'race') {
         raceUI.classList.remove('hidden');
-        zenUI.classList.add('hidden');
         startButton.style.display = 'none';
         textInput.disabled = false;
         gameState.isActive = true;
@@ -130,42 +135,29 @@ function startMode(mode, aiSpeed = 0) {
         startRaceProgress();
     } else if (mode === 'zen') {
         zenUI.classList.remove('hidden');
-        raceUI.classList.add('hidden');
         startZenMode();
         return;
     } else {
-        raceUI.classList.add('hidden');
-        zenUI.classList.add('hidden');
-    }
-    
-    // Set up the text display
-    const text = getNewText();
-    if (textDisplay) {
-        textDisplay.textContent = text;
-        // Make sure text is visible
-        textDisplay.style.display = 'block';
-        textDisplay.style.visibility = 'visible';
-        textDisplay.style.opacity = '1';
-    }
-    
-    // Set up input
-    if (textInput) {
-        textInput.value = '';
-        textInput.disabled = false;
-        textInput.style.display = 'block';
-    }
-    
-    // Show/hide buttons
-    if (startButton) startButton.style.display = 'block';
-    if (nextButton) nextButton.style.display = 'none';
-    
-    // Focus and scroll
-    setTimeout(() => {
-        if (textInput) {
-            textInput.focus();
-            textDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Practice or Challenge mode
+        if (practiceUI) practiceUI.classList.remove('hidden');
+        if (mode === 'challenge') {
+            levelBox.style.display = 'block';
         }
-    }, 100);
+    }
+    
+    // Set up the text display for practice/race modes
+    if (mode !== 'zen') {
+        const text = getNewText();
+        if (textDisplay) {
+            textDisplay.textContent = text;
+            textDisplay.style.display = 'block';
+        }
+        if (textInput) {
+            textInput.value = '';
+            textInput.disabled = false;
+            textInput.style.display = 'block';
+        }
+    }
 }
 
 function hideAllScreens() {
