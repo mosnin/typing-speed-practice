@@ -50,12 +50,12 @@
                 <div id="aiSpeedSelection" class="speed-selection hidden">
                     <h3>Select AI Speed</h3>
                     <div class="speed-buttons">
-                        <button class="speed-btn" data-speed="30">Beginner (30 WPM)</button>
-                        <button class="speed-btn" data-speed="50">Intermediate (50 WPM)</button>
-                        <button class="speed-btn" data-speed="70">Advanced (70 WPM)</button>
-                        <button class="speed-btn" data-speed="90">Expert (90 WPM)</button>
+                        <button class="speed-button" data-speed="30">Beginner (30 WPM)</button>
+                        <button class="speed-button" data-speed="50">Intermediate (50 WPM)</button>
+                        <button class="speed-button" data-speed="70">Advanced (70 WPM)</button>
+                        <button class="speed-button" data-speed="90">Expert (90 WPM)</button>
                     </div>
-                    <button id="backFromSpeed" class="back-button">← Back to Menu</button>
+                    <button id="backToModes" class="back-button">← Back to Modes</button>
                 </div>
             </div>
 
@@ -65,7 +65,8 @@
                     <button id="backToMenu" class="back-button">← Menu</button>
                     <div id="modeIndicator" class="mode-indicator">Practice Mode</div>
                 </div>
-                
+
+                <!-- Stats Section -->
                 <div class="stats">
                     <div class="stat-box">
                         <label>WPM</label>
@@ -81,12 +82,11 @@
                     </div>
                 </div>
 
-                <div id="gameContent" class="game-content">
-                    <div id="textDisplay" class="text-display"></div>
-                    <input type="text" id="textInput" class="text-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here...">
-                    <button id="startButton" class="primary-button">Start</button>
-                    <button id="nextButton" class="primary-button" style="display: none;">Next</button>
-                </div>
+                <!-- Game Content -->
+                <div id="textDisplay" class="text-display"></div>
+                <input type="text" id="textInput" class="text-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here...">
+                <button id="startButton" class="primary-button">Start</button>
+                <button id="nextButton" class="primary-button" style="display: none;">Next</button>
 
                 <!-- Zen Mode UI -->
                 <div id="zenUI" class="zen-container hidden">
@@ -126,32 +126,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="text-display" id="textDisplay">
-                    Select a mode to begin...
-                </div>
-                <textarea id="textInput" placeholder="Start typing here..." disabled></textarea>
-                <div class="game-buttons">
-                    <button id="startButton">Start Test</button>
-                    <button id="nextButton" class="hidden">Next Text →</button>
-                </div>
-            </div>
-
-            <!-- Game Over Screen -->
-            <div id="gameOverScreen" class="screen">
-                <h2>Game Over!</h2>
-                <div class="final-stats">
-                    <div class="stat-box">
-                        <span id="finalWpm">0</span>
-                        <label>Final WPM</label>
-                    </div>
-                    <div class="stat-box" id="finalLevelBox" style="display: none;">
-                        <span id="finalLevel">1</span>
-                        <label>Highest Level</label>
-                    </div>
-                </div>
-                <button id="playAgain">Play Again</button>
-                <button id="returnToMenu">Return to Menu</button>
             </div>
         </div>
     </div>
@@ -159,12 +133,7 @@
     <footer class="site-footer">
         <div class="footer-content">
             <div class="footer-section">
-                <h2>Typing Speed Practice</h2>
-                <p>Improve your typing speed and accuracy with our free online typing practice tool. Whether you're a beginner aiming to increase your WPM (Words Per Minute) or an advanced typist looking to break speed records, our typing speed test and practice modes help you achieve your goals.</p>
-                <p>Features multiple practice modes including Race Mode to compete against AI, Challenge Mode to test your limits, and Zen Mode for relaxed typing practice. Track your WPM, accuracy, and progress in real-time.</p>
-            </div>
-            <div class="footer-section">
-                <p class="copyright"> 2024 Typing Speed Practice - Free Online Typing Test and Practice</p>
+                <p>&copy; 2024 Typing Speed Practice. All rights reserved.</p>
             </div>
         </div>
     </footer>
