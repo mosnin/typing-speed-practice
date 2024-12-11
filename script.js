@@ -4,7 +4,6 @@ const textDisplay = document.getElementById('textDisplay');
 const startButton = document.getElementById('startButton');
 const nextButton = document.getElementById('nextButton');
 const wpmDisplay = document.getElementById('wpm');
-const accuracyDisplay = document.getElementById('accuracy');
 const timeDisplay = document.getElementById('time');
 const levelDisplay = document.getElementById('level');
 const levelBox = document.getElementById('levelBox');
@@ -235,43 +234,46 @@ function endRace(winner) {
 function checkTyping() {
     if (!gameState.isActive) return;
     
-    const currentText = document.getElementById('textInput').value;
-    const targetText = document.getElementById('textDisplay').textContent;
-    const words = targetText.split(' ');
-    const currentWords = currentText.split(' ');
+    const currentText = textDisplay.textContent;
+    const typedText = textInput.value;
+    const currentWord = currentText.split(' ')[gameState.currentWordIndex];
     
-    // Update progress in race mode
-    if (gameState.mode === 'race') {
-        updatePlayerProgress(currentWords.length - 1);
-    }
-    
-    // Calculate accuracy
-    let correct = 0;
-    for (let i = 0; i < currentText.length; i++) {
-        if (currentText[i] === targetText[i]) correct++;
-    }
-    
-    const accuracy = Math.round((correct / currentText.length) * 100) || 100;
-    accuracyDisplay.textContent = accuracy + '%';
-    
-    // Update stats
-    const timeElapsed = (Date.now() - gameState.startTime) / 60000;
-    const wordsTyped = currentWords.length;
-    const wpm = Math.round(wordsTyped / timeElapsed) || 0;
-    wpmDisplay.textContent = wpm;
-    
-    // Check if text is completed
-    if (currentText === targetText) {
-        if (gameState.mode === 'practice') {
-            nextText();
-        } else if (gameState.mode === 'challenge') {
-            gameState.level++;
-            levelDisplay.textContent = gameState.level;
+    if (typedText.endsWith(' ')) {
+        const typedWord = typedText.trim();
+        
+        if (typedWord === currentWord) {
+            gameState.currentWordIndex++;
             textInput.value = '';
-            getNewText();
-            textInput.focus();
+            
+            // Update progress in race mode
+            if (gameState.mode === 'race') {
+                updatePlayerProgress(gameState.currentWordIndex);
+            }
+            
+            // Check if completed
+            if (gameState.currentWordIndex === currentText.split(' ').length) {
+                if (gameState.mode === 'practice') {
+                    nextButton.style.display = 'block';
+                    textInput.disabled = true;
+                } else {
+                    endTest();
+                }
+                return;
+            }
         }
     }
+    
+    // Calculate WPM
+    const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60; // in minutes
+    const wordsTyped = gameState.currentWordIndex;
+    const currentWPM = Math.round(wordsTyped / timeElapsed) || 0;
+    
+    // Update WPM display
+    wpmDisplay.textContent = currentWPM;
+    
+    // Update time display
+    const secondsElapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+    timeDisplay.textContent = secondsElapsed + 's';
 }
 
 function getNewText() {
@@ -303,7 +305,6 @@ function resetGame() {
     textInput.disabled = true;
     startButton.disabled = false;
     wpmDisplay.textContent = '0';
-    accuracyDisplay.textContent = '100%';
     timeDisplay.textContent = '60';
     levelDisplay.textContent = gameState.level;
     
@@ -397,4 +398,29 @@ function updateZenTime() {
     const seconds = gameState.zenSeconds % 60;
     const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     zenTime.textContent = formattedTime;
+}
+
+function endTest() {
+    gameState.isActive = false;
+    textInput.disabled = true;
+    
+    // Calculate final stats
+    const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60; // in minutes
+    const wordsTyped = gameState.currentWordIndex;
+    const finalWPM = Math.round(wordsTyped / timeElapsed) || 0;
+    
+    // Update final stats display
+    document.getElementById('finalWpm').textContent = finalWPM;
+    
+    // Show game over screen
+    hideAllScreens();
+    document.getElementById('gameOverScreen').classList.add('active');
+    
+    // Show/hide level box based on mode
+    document.getElementById('finalLevelBox').style.display = 
+        gameState.mode === 'challenge' ? 'block' : 'none';
+    
+    if (gameState.mode === 'challenge') {
+        document.getElementById('finalLevel').textContent = gameState.level;
+    }
 }
