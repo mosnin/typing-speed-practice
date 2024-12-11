@@ -167,6 +167,8 @@ body {
 #gameScreen {
     display: none;
     width: 100%;
+    min-height: 300px;
+    padding: 1rem;
 }
 
 #gameScreen.active {
@@ -279,31 +281,36 @@ body {
 }
 
 /* Game Elements */
-.text-display {
+#textDisplay {
     background-color: var(--bg-color);
-    padding: 1rem;
+    color: var(--text-secondary);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
     border-radius: var(--border-radius);
-    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: block;
+    width: 100%;
     min-height: 100px;
-    line-height: 1.5;
 }
 
-textarea {
+#textInput {
     width: 100%;
-    height: 120px;
+    padding: 1rem;
+    font-size: 1.2rem;
     background-color: var(--bg-color);
     color: var(--text-color);
-    padding: 1rem;
-    border: none;
+    border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
-    margin-bottom: 1rem;
-    resize: none;
-    font-size: 1rem;
-    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s ease;
 }
 
-textarea:focus {
-    outline: 2px solid var(--accent-color);
+#textInput:focus {
+    outline: none;
+    border-color: var(--accent-color);
 }
 
 /* Buttons */
@@ -615,14 +622,18 @@ button:disabled {
     }
 
     #textDisplay {
-        font-size: 1.1rem;
         padding: 1rem;
-        margin-bottom: 1rem;
+        font-size: 1rem;
+        margin: 1rem 0;
+        min-height: 80px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     #textInput {
-        font-size: 1.1rem;
         padding: 0.8rem;
+        font-size: 1rem;
+        margin-bottom: 1rem;
     }
 
     .stats {
@@ -728,17 +739,20 @@ button:disabled {
         font-size: 1.5rem;
     }
 
-    #textDisplay, #textInput {
-        font-size: 1rem;
+    #textDisplay {
         padding: 0.8rem;
+        font-size: 0.9rem;
+        min-height: 60px;
     }
 
-    .stat-box {
+    #textInput {
         padding: 0.6rem;
+        font-size: 0.9rem;
     }
 
-    .stat-box span {
-        font-size: 1.1rem;
+    input[type="text"],
+    textarea {
+        font-size: 16px !important;
     }
 }
 

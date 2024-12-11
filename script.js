@@ -106,6 +106,7 @@ function startMode(mode, aiSpeed = 0) {
     resetGame();
     gameState.mode = mode;
     gameState.aiSpeed = aiSpeed;
+    gameState.currentWordIndex = 0;
 
     // Hide all screens first
     hideAllScreens();
@@ -123,14 +124,23 @@ function startMode(mode, aiSpeed = 0) {
     zenUI.style.display = 'none';
     
     // Set up the game
-    textDisplay.textContent = getNewText();
+    const newText = getNewText();
+    textDisplay.textContent = newText;
+    textDisplay.style.display = 'block'; // Ensure visibility
+    
     textInput.value = '';
     textInput.disabled = false;
+    textInput.style.display = 'block'; // Ensure visibility
+    
     startButton.style.display = mode === 'race' ? 'none' : 'block';
     nextButton.style.display = 'none';
     
     // Focus on text input
-    textInput.focus();
+    setTimeout(() => {
+        textInput.focus();
+        // Scroll to ensure text is visible on mobile
+        textDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
     
     // Special setup for race mode
     if (mode === 'race') {
@@ -291,32 +301,29 @@ function nextText() {
 }
 
 function resetGame() {
-    gameState = {
-        ...gameState,
-        isActive: false,
-        startTime: null,
-        level: gameState.mode === 'challenge' ? 1 : 0,
-        zenStartTime: null,
-        zenSeconds: 0
-    };
+    gameState.isActive = false;
+    gameState.startTime = null;
+    gameState.currentWordIndex = 0;
+    gameState.aiProgress = 0;
+    gameState.playerProgress = 0;
     
-    // Reset UI
+    if (gameState.raceInterval) {
+        clearInterval(gameState.raceInterval);
+        gameState.raceInterval = null;
+    }
+    
+    // Reset UI elements
+    textDisplay.style.display = 'block';
+    textInput.style.display = 'block';
     textInput.value = '';
     textInput.disabled = true;
-    startButton.disabled = false;
-    wpmDisplay.textContent = '0';
-    timeDisplay.textContent = '60';
-    levelDisplay.textContent = gameState.level;
     
-    // Reset Zen mode UI if in Zen mode
-    if (gameState.mode === 'zen') {
-        zenInput.value = '';
-        zenWPM.textContent = '0';
-        zenWordCount.textContent = '0';
-        zenTime.textContent = '0:00';
-    } else {
-        getNewText();
-    }
+    wpmDisplay.textContent = '0';
+    timeDisplay.textContent = '0s';
+    
+    // Reset progress bars
+    if (playerProgress) playerProgress.style.width = '0%';
+    if (aiProgress) aiProgress.style.width = '0%';
 }
 
 function showMenu() {
