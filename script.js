@@ -46,54 +46,96 @@ const texts = [
     "five quacking zephyrs jolt my wax bed"
 ];
 
+// Challenge Mode Constants
+const CHALLENGE_LEVELS = [
+    { level: 1, targetWPM: 20, text: "The quick brown fox jumps over the lazy dog. Simple words to start your journey." },
+    { level: 2, targetWPM: 30, text: "Programming is the art of telling another human what one wants the computer to do. It requires both technical skill and creativity." },
+    { level: 3, targetWPM: 40, text: "In computer science, artificial intelligence, sometimes called machine intelligence, is intelligence demonstrated by machines, in contrast to the natural intelligence displayed by humans." },
+    { level: 4, targetWPM: 50, text: "The World Wide Web, commonly known as the Web, is an information system enabling documents and other web resources to be accessed over the Internet. Documents and downloadable media are made available through web servers." },
+    { level: 5, targetWPM: 60, text: "A programming paradigm is a fundamental style of computer programming. Different paradigms result in different patterns of solving problems and different ways of thinking about program elements. Common paradigms include imperative, functional, and object-oriented programming." }
+];
+
+let currentChallengeLevel = 1;
+let challengeStartTime;
+let challengeEndTime;
+let challengeInProgress = false;
+
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded');
+    console.log('DOM Content Loaded'); // Debug log
     
-    // Debug: Check if speed buttons exist
-    const speedButtons = document.querySelectorAll('.speed-btn');
-    console.log('Found speed buttons:', speedButtons.length);
+    // Mode selection buttons
+    const practiceMode = document.getElementById('practiceMode');
+    if (practiceMode) {
+        console.log('Found practice mode button'); // Debug log
+        practiceMode.addEventListener('click', () => {
+            console.log('Practice mode clicked'); // Debug log
+            startMode('practice');
+        });
+    }
     
-    // Add event listeners for AI speed selection
-    speedButtons.forEach(btn => {
-        console.log('Adding listener to button:', btn.textContent);
-        btn.onclick = function() {
-            console.log('Speed button clicked!');
+    const challengeMode = document.getElementById('challengeMode');
+    if (challengeMode) {
+        challengeMode.addEventListener('click', () => startChallengeMode());
+    }
+    
+    const raceMode = document.getElementById('raceMode');
+    if (raceMode) {
+        raceMode.addEventListener('click', () => showAISpeedSelection());
+    }
+    
+    const zenMode = document.getElementById('zenMode');
+    if (zenMode) {
+        zenMode.addEventListener('click', () => startMode('zen'));
+    }
+    
+    // Back to menu button
+    const backToMenu = document.getElementById('backToMenu');
+    if (backToMenu) {
+        backToMenu.addEventListener('click', showMenu);
+    }
+    
+    const backToModes = document.getElementById('backToModes');
+    if (backToModes) {
+        backToModes.addEventListener('click', showMenu);
+    }
+    
+    // AI speed selection
+    document.querySelectorAll('.speed-button').forEach(button => {
+        button.addEventListener('click', function() {
             const speed = parseInt(this.dataset.speed);
-            console.log('Selected speed:', speed);
-            // Hide speed selection
-            document.getElementById('aiSpeedSelection').classList.add('hidden');
-            document.getElementById('modeSelection').classList.remove('active');
-            // Show and start game
-            document.getElementById('gameScreen').classList.add('active');
             startMode('race', speed);
-        };
+        });
     });
+    
+    // Game controls
+    if (startButton) {
+        console.log('Found start button'); // Debug log
+        startButton.addEventListener('click', startTest);
+    }
+    
+    if (nextButton) {
+        console.log('Found next button'); // Debug log
+        nextButton.addEventListener('click', nextText);
+    }
+    
+    if (textInput) {
+        console.log('Found text input'); // Debug log
+        textInput.addEventListener('input', checkTyping);
+    }
+    
+    if (zenInput) {
+        zenInput.addEventListener('input', updateZenStats);
+    }
+    
+    // Challenge Mode Event Listeners
+    document.getElementById('challengeStartButton').addEventListener('click', startChallenge);
+    document.getElementById('challengeNextButton').addEventListener('click', nextChallengeLevel);
+    document.getElementById('challengeInput').addEventListener('input', checkChallengeProgress);
     
     // Show menu by default
+    console.log('Showing initial menu'); // Debug log
     showMenu();
-    
-    // Set up event listeners for mode selection
-    document.getElementById('practiceMode').addEventListener('click', () => startMode('practice'));
-    document.getElementById('challengeMode').addEventListener('click', () => startMode('challenge'));
-    document.getElementById('raceMode').addEventListener('click', () => {
-        console.log('Race mode clicked');
-        document.querySelector('.mode-buttons').style.display = 'none';
-        document.getElementById('aiSpeedSelection').classList.remove('hidden');
-    });
-    document.getElementById('zenMode').addEventListener('click', () => startMode('zen'));
-    
-    // Set up event listeners for navigation
-    document.getElementById('backToMenu').addEventListener('click', showMenu);
-    document.getElementById('backFromSpeed').addEventListener('click', showMenu);
-    document.getElementById('playAgain').addEventListener('click', restartGame);
-    document.getElementById('returnToMenu').addEventListener('click', showMenu);
-    
-    // Set up event listeners for game controls
-    document.getElementById('startButton').addEventListener('click', startTest);
-    document.getElementById('nextButton').addEventListener('click', nextText);
-    document.getElementById('textInput').addEventListener('input', checkTyping);
-    document.getElementById('zenInput').addEventListener('input', updateZenStats);
 });
 
 function showAISpeedSelection() {
@@ -102,69 +144,275 @@ function showAISpeedSelection() {
 }
 
 function startMode(mode, aiSpeed = 0) {
-    hideAllScreens();
+    console.log('Starting mode:', mode);
     
-    // Set game state
-    gameState.mode = mode;
-    gameState.isActive = false;
-    gameState.aiSpeed = aiSpeed;
+    // Hide all screens first
+    hideAllScreens();
     
     // Show game screen
     const gameScreen = document.getElementById('gameScreen');
-    gameScreen.classList.add('active');
-    
-    // Update mode indicator
-    modeIndicator.textContent = getModeText(mode);
-    
-    // Reset game state
-    resetGame();
-    
-    // Hide all mode UIs first
-    const practiceUI = document.getElementById('practiceUI');
-    if (practiceUI) practiceUI.classList.add('hidden');
-    if (raceUI) raceUI.classList.add('hidden');
-    if (zenUI) zenUI.classList.add('hidden');
-    
-    // Show appropriate UI based on mode
-    if (mode === 'race') {
-        raceUI.classList.remove('hidden');
-        startButton.style.display = 'none';
-        textInput.disabled = false;
-        gameState.isActive = true;
-        gameState.startTime = Date.now();
-        startRaceProgress();
-    } else if (mode === 'zen') {
-        zenUI.classList.remove('hidden');
-        startZenMode();
-        return;
+    if (gameScreen) {
+        console.log('Found game screen');
+        gameScreen.classList.add('active');
     } else {
-        // Practice or Challenge mode
-        if (practiceUI) practiceUI.classList.remove('hidden');
-        if (mode === 'challenge') {
-            levelBox.style.display = 'block';
-        }
+        console.error('Game screen not found');
+        return;
     }
     
-    // Set up the text display for practice/race modes
-    if (mode !== 'zen') {
-        const text = getNewText();
-        if (textDisplay) {
-            textDisplay.textContent = text;
-            textDisplay.style.display = 'block';
+    // Reset game state
+    gameState = {
+        mode: mode,
+        isActive: false,
+        startTime: null,
+        zenStartTime: null,
+        zenTimer: null,
+        level: 1,
+        aiSpeed: aiSpeed,
+        aiProgress: 0,
+        playerProgress: 0,
+        currentWordIndex: 0,
+        totalWords: 0,
+        raceInterval: null
+    };
+    
+    // Update mode indicator
+    if (modeIndicator) {
+        modeIndicator.textContent = getModeText(mode);
+    }
+    
+    // Hide all mode UIs
+    document.querySelectorAll('.mode-ui').forEach(ui => {
+        console.log('Hiding UI:', ui.id);
+        ui.classList.add('hidden');
+    });
+    
+    // Show appropriate UI based on mode
+    if (mode === 'practice') {
+        const practiceUI = document.getElementById('practiceUI');
+        if (practiceUI) {
+            console.log('Found practice UI');
+            practiceUI.classList.remove('hidden');
+            
+            // Set up practice mode
+            if (levelBox) levelBox.style.display = 'none';
+            if (textDisplay) {
+                const text = getNewText();
+                textDisplay.textContent = text;
+            }
+            if (textInput) {
+                textInput.value = '';
+                textInput.disabled = true;
+            }
+            if (startButton) startButton.style.display = 'block';
+            if (nextButton) nextButton.style.display = 'none';
+            
+            // Reset stats
+            if (wpmDisplay) wpmDisplay.textContent = '0';
+            if (timeDisplay) timeDisplay.textContent = '0';
+        } else {
+            console.error('Practice UI not found');
         }
-        if (textInput) {
-            textInput.value = '';
-            textInput.disabled = false;
-            textInput.style.display = 'block';
+    } else if (mode === 'challenge') {
+        const challengeUI = document.getElementById('challengeUI');
+        if (challengeUI) {
+            console.log('Found challenge UI');
+            challengeUI.classList.remove('hidden');
+            
+            // Show level box
+            if (levelBox) levelBox.style.display = 'block';
+            
+            // Set up challenge mode
+            setupChallengeLevel(gameState.level);
+            
+            // Reset stats
+            if (wpmDisplay) wpmDisplay.textContent = '0';
+            if (timeDisplay) timeDisplay.textContent = '0';
+            
+            // Add event listeners for challenge mode buttons
+            const challengeStartButton = document.getElementById('challengeStartButton');
+            const challengeNextButton = document.getElementById('challengeNextButton');
+            const challengeInput = document.getElementById('challengeInput');
+            
+            if (challengeStartButton) {
+                challengeStartButton.onclick = startChallenge;
+            }
+            if (challengeNextButton) {
+                challengeNextButton.onclick = nextChallengeLevel;
+            }
+            if (challengeInput) {
+                challengeInput.oninput = checkChallengeTyping;
+            }
+        } else {
+            console.error('Challenge UI not found');
+        }
+    } else if (mode === 'race') {
+        const raceUI = document.getElementById('raceUI');
+        if (raceUI) {
+            raceUI.classList.remove('hidden');
+            if (startButton) startButton.style.display = 'none';
+            if (textInput) {
+                textInput.disabled = false;
+                textInput.value = '';
+            }
+            gameState.isActive = true;
+            gameState.startTime = Date.now();
+            startRaceProgress();
+        }
+    } else if (mode === 'zen') {
+        const zenUI = document.getElementById('zenUI');
+        if (zenUI) {
+            zenUI.classList.remove('hidden');
+            startZenMode();
         }
     }
 }
 
+function startChallengeMode() {
+    currentMode = 'challenge';
+    currentChallengeLevel = 1;
+    showElement('challengeMode');
+    hideElement('practiceMode');
+    hideElement('raceMode');
+    hideElement('zenMode');
+    setupChallengeLevel();
+}
+
+function setupChallengeLevel() {
+    const level = CHALLENGE_LEVELS[currentChallengeLevel - 1];
+    document.getElementById('currentLevel').textContent = level.level;
+    document.getElementById('targetWPM').textContent = level.targetWPM;
+    document.getElementById('challengeTextDisplay').textContent = level.text;
+    document.getElementById('challengeInput').value = '';
+    document.getElementById('challengeInput').disabled = true;
+    
+    showElement('challengeStartButton');
+    hideElement('challengeNextButton');
+    challengeInProgress = false;
+}
+
+function startChallenge() {
+    challengeStartTime = new Date();
+    document.getElementById('challengeInput').disabled = false;
+    document.getElementById('challengeInput').focus();
+    hideElement('challengeStartButton');
+    challengeInProgress = true;
+}
+
+function checkChallengeProgress() {
+    if (!challengeInProgress) return;
+    
+    const level = CHALLENGE_LEVELS[currentChallengeLevel - 1];
+    const input = document.getElementById('challengeInput').value;
+    const targetText = level.text;
+    
+    if (input === targetText) {
+        challengeEndTime = new Date();
+        const timeElapsed = (challengeEndTime - challengeStartTime) / 1000 / 60; // in minutes
+        const wordsTyped = targetText.split(' ').length;
+        const wpm = Math.round(wordsTyped / timeElapsed);
+        
+        if (wpm >= level.targetWPM) {
+            handleChallengeSuccess(wpm);
+        } else {
+            handleChallengeFail(wpm);
+        }
+        challengeInProgress = false;
+    }
+}
+
+function handleChallengeSuccess(wpm) {
+    showElement('challengeNextButton');
+    document.getElementById('challengeInput').disabled = true;
+    
+    if (currentChallengeLevel === CHALLENGE_LEVELS.length) {
+        alert(`Congratulations! You've completed all levels with ${wpm} WPM!`);
+    } else {
+        alert(`Level ${currentChallengeLevel} completed with ${wpm} WPM! Click Next to continue.`);
+    }
+}
+
+function handleChallengeFail(wpm) {
+    showElement('challengeStartButton');
+    document.getElementById('challengeInput').disabled = true;
+    alert(`Try again! You achieved ${wpm} WPM, but need ${CHALLENGE_LEVELS[currentChallengeLevel - 1].targetWPM} WPM to pass.`);
+}
+
+function nextChallengeLevel() {
+    if (currentChallengeLevel < CHALLENGE_LEVELS.length) {
+        currentChallengeLevel++;
+        setupChallengeLevel();
+    }
+}
+
 function hideAllScreens() {
-    document.getElementById('modeSelection').classList.remove('active');
-    document.getElementById('gameScreen').classList.remove('active');
-    document.getElementById('gameOverScreen').classList.remove('active');
-    document.getElementById('aiSpeedSelection').classList.add('hidden');
+    console.log('Hiding all screens');
+    
+    // Hide mode selection
+    const modeSelection = document.getElementById('modeSelection');
+    if (modeSelection) {
+        console.log('Found mode selection screen');
+        modeSelection.classList.remove('active');
+    }
+    
+    // Hide game screen
+    const gameScreen = document.getElementById('gameScreen');
+    if (gameScreen) {
+        console.log('Found game screen');
+        gameScreen.classList.remove('active');
+    }
+    
+    // Hide all mode UIs
+    document.querySelectorAll('.mode-ui').forEach(ui => {
+        console.log('Hiding UI:', ui.id);
+        ui.classList.add('hidden');
+    });
+    
+    // Log all screens for debugging
+    const screens = document.querySelectorAll('.screen');
+    console.log('All screens found:', Array.from(screens).map(s => s.id));
+}
+
+function showMenu() {
+    console.log('Showing menu');
+    
+    // Reset game state
+    gameState.isActive = false;
+    if (gameState.zenTimer) {
+        clearInterval(gameState.zenTimer);
+        gameState.zenTimer = null;
+    }
+    if (gameState.raceInterval) {
+        clearInterval(gameState.raceInterval);
+        gameState.raceInterval = null;
+    }
+
+    // Hide all screens first
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    // Show mode selection
+    const modeSelection = document.getElementById('modeSelection');
+    if (modeSelection) {
+        console.log('Found mode selection screen, showing it');
+        modeSelection.classList.add('active');
+        
+        // Show mode buttons
+        const modeButtons = document.querySelector('.mode-buttons');
+        if (modeButtons) {
+            console.log('Found mode buttons, showing them');
+            modeButtons.style.display = 'grid';
+        }
+    } else {
+        console.error('Mode selection screen not found');
+    }
+    
+    // Hide AI speed selection
+    const aiSpeedSelection = document.getElementById('aiSpeedSelection');
+    if (aiSpeedSelection) {
+        console.log('Found AI speed selection, hiding it');
+        aiSpeedSelection.classList.add('hidden');
+    }
 }
 
 function getModeText(mode) {
@@ -189,67 +437,17 @@ function startTest() {
     gameState.startTime = Date.now();
     gameState.currentWordIndex = 0;
     
-    const textInput = document.getElementById('textInput');
+    // Enable input and focus
     textInput.disabled = false;
     textInput.value = '';
     textInput.focus();
     
-    // Start race mode AI progress
-    if (gameState.mode === 'race') {
-        startRaceProgress();
-    }
-}
-
-function startRaceProgress() {
-    // Clear any existing interval
-    if (gameState.raceInterval) {
-        clearInterval(gameState.raceInterval);
-    }
+    // Hide start button, will show next button when typing is complete
+    startButton.style.display = 'none';
+    nextButton.style.display = 'none';
     
-    const wordsInText = document.getElementById('textDisplay').textContent.split(' ').length;
-    gameState.totalWords = wordsInText;
-    
-    // Calculate how often the AI should update based on its WPM
-    const millisecondsPerWord = (60 / gameState.aiSpeed) * 1000;
-    
-    gameState.raceInterval = setInterval(() => {
-        if (!gameState.isActive) {
-            clearInterval(gameState.raceInterval);
-            return;
-        }
-        
-        // Update AI progress
-        gameState.aiProgress = Math.min(100, (gameState.aiProgress + (100 / wordsInText)));
-        document.querySelector('.ai-progress').style.width = gameState.aiProgress + '%';
-        
-        // Check if AI has won
-        if (gameState.aiProgress >= 100) {
-            endRace('ai');
-        }
-    }, millisecondsPerWord);
-}
-
-function updatePlayerProgress(currentIndex) {
-    if (gameState.mode === 'race') {
-        gameState.playerProgress = (currentIndex / gameState.totalWords) * 100;
-        document.querySelector('.player-progress').style.width = gameState.playerProgress + '%';
-        
-        // Check if player has won
-        if (gameState.playerProgress >= 100) {
-            endRace('player');
-        }
-    }
-}
-
-function endRace(winner) {
-    gameState.isActive = false;
-    clearInterval(gameState.raceInterval);
-    
-    const message = winner === 'player' ? 'Congratulations! You won!' : 'The AI won! Try again!';
-    alert(message);
-    
-    // Reset the game
-    showMenu();
+    // Start timer update
+    updateTimer();
 }
 
 function checkTyping() {
@@ -257,8 +455,10 @@ function checkTyping() {
     
     const currentText = textDisplay.textContent;
     const typedText = textInput.value;
-    const currentWord = currentText.split(' ')[gameState.currentWordIndex];
+    const words = currentText.split(' ');
+    const currentWord = words[gameState.currentWordIndex];
     
+    // Check if word is complete
     if (typedText.endsWith(' ')) {
         const typedWord = typedText.trim();
         
@@ -266,113 +466,65 @@ function checkTyping() {
             gameState.currentWordIndex++;
             textInput.value = '';
             
-            // Update progress in race mode
-            if (gameState.mode === 'race') {
-                updatePlayerProgress(gameState.currentWordIndex);
-            }
-            
-            // Check if completed
-            if (gameState.currentWordIndex === currentText.split(' ').length) {
-                if (gameState.mode === 'practice') {
-                    nextButton.style.display = 'block';
-                    textInput.disabled = true;
-                } else {
-                    endTest();
-                }
+            // Check if all words are typed
+            if (gameState.currentWordIndex === words.length) {
+                endTest();
                 return;
             }
         }
     }
     
-    // Calculate WPM
+    // Update WPM
     const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60; // in minutes
     const wordsTyped = gameState.currentWordIndex;
     const currentWPM = Math.round(wordsTyped / timeElapsed) || 0;
-    
-    // Update WPM display
     wpmDisplay.textContent = currentWPM;
+}
+
+function updateTimer() {
+    if (!gameState.isActive) return;
     
-    // Update time display
     const secondsElapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
-    timeDisplay.textContent = secondsElapsed + 's';
+    timeDisplay.textContent = secondsElapsed;
+    
+    requestAnimationFrame(updateTimer);
 }
 
 function nextText() {
-    if (gameState.mode === 'practice') {
-        getNewText();
-        textInput.value = '';
-        textInput.focus();
-    }
-}
-
-function resetGame() {
     // Reset game state
     gameState.isActive = false;
     gameState.startTime = null;
     gameState.currentWordIndex = 0;
-    gameState.totalWords = 0;
     
-    // Reset UI elements
-    wpmDisplay.textContent = '0';
-    timeDisplay.textContent = '0s';
-    
-    if (gameState.mode === 'challenge') {
-        levelDisplay.textContent = gameState.level;
-        levelBox.style.display = 'block';
-    } else {
-        levelBox.style.display = 'none';
-    }
-    
-    // Reset text input
-    textInput.value = '';
-    textInput.disabled = false;
-    
-    // Reset race mode elements if in race mode
-    if (gameState.mode === 'race') {
-        playerProgress.style.width = '0%';
-        aiProgress.style.width = '0%';
-        if (gameState.raceInterval) {
-            clearInterval(gameState.raceInterval);
-            gameState.raceInterval = null;
-        }
-    }
-    
-    // Set new text
+    // Get new text and reset UI
     const text = getNewText();
     textDisplay.textContent = text;
+    textInput.value = '';
+    textInput.disabled = true;
     
-    // Show start button
+    // Show/hide buttons
     startButton.style.display = 'block';
     nextButton.style.display = 'none';
     
-    // Focus on text input
-    setTimeout(() => {
-        textInput.focus();
-        // Ensure text is visible on mobile
-        textDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    // Reset stats
+    wpmDisplay.textContent = '0';
+    timeDisplay.textContent = '0';
 }
 
-function showMenu() {
-    // Clear Zen mode timer if active
-    if (gameState.zenTimer) {
-        clearInterval(gameState.zenTimer);
-        gameState.zenTimer = null;
-    }
-    
-    // Reset game state
+function endTest() {
     gameState.isActive = false;
-    gameState.zenStartTime = null;
     
-    // Hide all screens first
-    hideAllScreens();
+    // Calculate final WPM
+    const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60;
+    const wordsTyped = gameState.currentWordIndex;
+    const finalWPM = Math.round(wordsTyped / timeElapsed) || 0;
     
-    // Show mode selection and reset speed selection
-    document.getElementById('modeSelection').classList.add('active');
-    document.querySelector('.mode-buttons').style.display = 'grid';
-    document.getElementById('aiSpeedSelection').classList.add('hidden');
+    // Update display
+    wpmDisplay.textContent = finalWPM;
     
-    resetGame();
+    // Disable input and show next button
+    textInput.disabled = true;
+    nextButton.style.display = 'block';
 }
 
 function startZenMode() {
@@ -434,27 +586,144 @@ function updateZenTime() {
     zenTime.textContent = formattedTime;
 }
 
-function endTest() {
-    gameState.isActive = false;
-    textInput.disabled = true;
-    
-    // Calculate final stats
-    const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60; // in minutes
-    const wordsTyped = gameState.currentWordIndex;
-    const finalWPM = Math.round(wordsTyped / timeElapsed) || 0;
-    
-    // Update final stats display
-    document.getElementById('finalWpm').textContent = finalWPM;
-    
-    // Show game over screen
-    hideAllScreens();
-    document.getElementById('gameOverScreen').classList.add('active');
-    
-    // Show/hide level box based on mode
-    document.getElementById('finalLevelBox').style.display = 
-        gameState.mode === 'challenge' ? 'block' : 'none';
-    
-    if (gameState.mode === 'challenge') {
-        document.getElementById('finalLevel').textContent = gameState.level;
+function startRaceProgress() {
+    // Clear any existing interval
+    if (gameState.raceInterval) {
+        clearInterval(gameState.raceInterval);
     }
+    
+    const wordsInText = document.getElementById('textDisplay').textContent.split(' ').length;
+    gameState.totalWords = wordsInText;
+    
+    // Calculate how often the AI should update based on its WPM
+    const millisecondsPerWord = (60 / gameState.aiSpeed) * 1000;
+    
+    gameState.raceInterval = setInterval(() => {
+        if (!gameState.isActive) {
+            clearInterval(gameState.raceInterval);
+            return;
+        }
+        
+        // Update AI progress
+        gameState.aiProgress = Math.min(100, (gameState.aiProgress + (100 / wordsInText)));
+        document.querySelector('.ai-progress').style.width = gameState.aiProgress + '%';
+        
+        // Check if AI has won
+        if (gameState.aiProgress >= 100) {
+            endRace('ai');
+        }
+    }, millisecondsPerWord);
+}
+
+function endRace(winner) {
+    gameState.isActive = false;
+    clearInterval(gameState.raceInterval);
+    
+    const message = winner === 'player' ? 'Congratulations! You won!' : 'The AI won! Try again!';
+    alert(message);
+    
+    // Reset the game
+    showMenu();
+}
+
+function setupChallengeLevel(level) {
+    const levelIndex = level - 1;
+    if (levelIndex >= CHALLENGE_LEVELS.length) {
+        alert('Congratulations! You have completed all levels!');
+        showMenu();
+        return;
+    }
+    
+    const challengeLevel = CHALLENGE_LEVELS[levelIndex];
+    const challengeTextDisplay = document.getElementById('challengeTextDisplay');
+    const challengeInput = document.getElementById('challengeInput');
+    const currentLevel = document.getElementById('currentLevel');
+    const targetWPM = document.getElementById('targetWPM');
+    const levelDisplay = document.getElementById('level');
+    
+    if (challengeTextDisplay) challengeTextDisplay.textContent = challengeLevel.text;
+    if (challengeInput) {
+        challengeInput.value = '';
+        challengeInput.disabled = true;
+    }
+    if (currentLevel) currentLevel.textContent = level;
+    if (targetWPM) targetWPM.textContent = challengeLevel.targetWPM;
+    if (levelDisplay) levelDisplay.textContent = level;
+    
+    document.getElementById('challengeStartButton').style.display = 'block';
+    document.getElementById('challengeNextButton').style.display = 'none';
+}
+
+function startChallenge() {
+    if (gameState.isActive) return;
+    
+    gameState.isActive = true;
+    gameState.startTime = Date.now();
+    gameState.currentWordIndex = 0;
+    
+    const challengeInput = document.getElementById('challengeInput');
+    if (challengeInput) {
+        challengeInput.value = '';
+        challengeInput.disabled = false;
+        challengeInput.focus();
+    }
+    
+    document.getElementById('challengeStartButton').style.display = 'none';
+    
+    // Start timer update
+    updateTimer();
+}
+
+function checkChallengeTyping() {
+    if (!gameState.isActive) return;
+    
+    const challengeTextDisplay = document.getElementById('challengeTextDisplay');
+    const challengeInput = document.getElementById('challengeInput');
+    const currentText = challengeTextDisplay.textContent;
+    const typedText = challengeInput.value;
+    
+    // Calculate current WPM
+    const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60; // in minutes
+    const wordsTyped = typedText.trim().split(/\s+/).length;
+    const currentWPM = Math.round(wordsTyped / timeElapsed) || 0;
+    
+    // Update WPM display
+    wpmDisplay.textContent = currentWPM;
+    
+    // Check if completed
+    if (typedText === currentText) {
+        endChallenge();
+    }
+}
+
+function endChallenge() {
+    gameState.isActive = false;
+    
+    const challengeInput = document.getElementById('challengeInput');
+    if (challengeInput) {
+        challengeInput.disabled = true;
+    }
+    
+    // Calculate final WPM
+    const timeElapsed = (Date.now() - gameState.startTime) / 1000 / 60;
+    const finalWPM = Math.round(challengeInput.value.trim().split(/\s+/).length / timeElapsed) || 0;
+    wpmDisplay.textContent = finalWPM;
+    
+    // Check if passed level
+    const levelIndex = gameState.level - 1;
+    const targetWPM = CHALLENGE_LEVELS[levelIndex].targetWPM;
+    
+    if (finalWPM >= targetWPM) {
+        // Show next level button
+        document.getElementById('challengeNextButton').style.display = 'block';
+    } else {
+        // Show retry message
+        alert(`Try again! You need ${targetWPM} WPM to pass this level. You achieved ${finalWPM} WPM.`);
+        document.getElementById('challengeStartButton').style.display = 'block';
+    }
+}
+
+function nextChallengeLevel() {
+    gameState.level++;
+    setupChallengeLevel(gameState.level);
 }
