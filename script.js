@@ -147,7 +147,14 @@ function startMode(mode, aiSpeed = 0) {
     console.log('Starting mode:', mode);
     
     // Hide all screens first
-    hideAllScreens();
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    // Hide all mode UIs
+    document.querySelectorAll('.mode-ui').forEach(ui => {
+        ui.classList.add('hidden');
+    });
     
     // Show game screen
     const gameScreen = document.getElementById('gameScreen');
@@ -180,12 +187,6 @@ function startMode(mode, aiSpeed = 0) {
         modeIndicator.textContent = getModeText(mode);
     }
     
-    // Hide all mode UIs
-    document.querySelectorAll('.mode-ui').forEach(ui => {
-        console.log('Hiding UI:', ui.id);
-        ui.classList.add('hidden');
-    });
-    
     // Show appropriate UI based on mode
     if (mode === 'practice') {
         const practiceUI = document.getElementById('practiceUI');
@@ -203,66 +204,34 @@ function startMode(mode, aiSpeed = 0) {
                 textInput.value = '';
                 textInput.disabled = true;
             }
-            if (startButton) startButton.style.display = 'block';
+            if (startButton) {
+                startButton.style.display = 'block';
+                startButton.disabled = false;
+            }
             if (nextButton) nextButton.style.display = 'none';
             
             // Reset stats
             if (wpmDisplay) wpmDisplay.textContent = '0';
             if (timeDisplay) timeDisplay.textContent = '0';
-        } else {
-            console.error('Practice UI not found');
         }
     } else if (mode === 'challenge') {
         const challengeUI = document.getElementById('challengeUI');
         if (challengeUI) {
-            console.log('Found challenge UI');
             challengeUI.classList.remove('hidden');
-            
-            // Show level box
-            if (levelBox) levelBox.style.display = 'block';
-            
-            // Set up challenge mode
             setupChallengeLevel(gameState.level);
-            
-            // Reset stats
-            if (wpmDisplay) wpmDisplay.textContent = '0';
-            if (timeDisplay) timeDisplay.textContent = '0';
-            
-            // Add event listeners for challenge mode buttons
-            const challengeStartButton = document.getElementById('challengeStartButton');
-            const challengeNextButton = document.getElementById('challengeNextButton');
-            const challengeInput = document.getElementById('challengeInput');
-            
-            if (challengeStartButton) {
-                challengeStartButton.onclick = startChallenge;
-            }
-            if (challengeNextButton) {
-                challengeNextButton.onclick = nextChallengeLevel;
-            }
-            if (challengeInput) {
-                challengeInput.oninput = checkChallengeTyping;
-            }
-        } else {
-            console.error('Challenge UI not found');
         }
     } else if (mode === 'race') {
         const raceUI = document.getElementById('raceUI');
         if (raceUI) {
             raceUI.classList.remove('hidden');
-            if (startButton) startButton.style.display = 'none';
-            if (textInput) {
-                textInput.disabled = false;
-                textInput.value = '';
-            }
-            gameState.isActive = true;
-            gameState.startTime = Date.now();
-            startRaceProgress();
+            gameState.aiSpeed = aiSpeed;
+            setupRaceMode();
         }
     } else if (mode === 'zen') {
         const zenUI = document.getElementById('zenUI');
         if (zenUI) {
             zenUI.classList.remove('hidden');
-            startZenMode();
+            setupZenMode();
         }
     }
 }
@@ -391,13 +360,18 @@ function showMenu() {
         screen.classList.remove('active');
     });
     
+    // Hide all mode UIs
+    document.querySelectorAll('.mode-ui').forEach(ui => {
+        ui.classList.add('hidden');
+    });
+    
     // Show mode selection
     const modeSelection = document.getElementById('modeSelection');
     if (modeSelection) {
         console.log('Found mode selection screen, showing it');
         modeSelection.classList.add('active');
         
-        // Show mode buttons
+        // Show mode buttons and ensure proper display
         const modeButtons = document.querySelector('.mode-buttons');
         if (modeButtons) {
             console.log('Found mode buttons, showing them');
@@ -407,7 +381,7 @@ function showMenu() {
         console.error('Mode selection screen not found');
     }
     
-    // Hide AI speed selection
+    // Hide AI speed selection and ensure it's properly hidden
     const aiSpeedSelection = document.getElementById('aiSpeedSelection');
     if (aiSpeedSelection) {
         console.log('Found AI speed selection, hiding it');

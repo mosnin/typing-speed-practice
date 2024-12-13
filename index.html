@@ -74,23 +74,63 @@
                     </div>
                     <div class="stat-box">
                         <label>Time</label>
-                        <span id="time">0s</span>
+                        <span id="time">0</span>
                     </div>
-                    <div class="stat-box" id="levelBox" style="display: none;">
-                        <span id="level">1</span>
+                    <div id="levelBox" class="stat-box">
                         <label>Level</label>
+                        <span id="level">1</span>
                     </div>
                 </div>
 
-                <!-- Game Content -->
-                <div id="textDisplay" class="text-display"></div>
-                <input type="text" id="textInput" class="text-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here...">
-                <button id="startButton" class="primary-button">Start</button>
-                <button id="nextButton" class="primary-button" style="display: none;">Next</button>
+                <!-- Practice Mode UI -->
+                <div id="practiceUI" class="mode-ui hidden">
+                    <div id="textDisplay" class="text-display"></div>
+                    <input type="text" id="textInput" class="text-input" autocomplete="off" placeholder="Type here..." />
+                    <div class="button-container">
+                        <button id="startButton" class="game-button">Start</button>
+                        <button id="nextButton" class="game-button" style="display: none;">Next</button>
+                    </div>
+                </div>
+
+                <!-- Challenge Mode UI -->
+                <div id="challengeUI" class="mode-ui hidden">
+                    <div class="challenge-info">
+                        <div class="level-indicator">Level <span id="currentLevel">1</span></div>
+                        <div class="target-wpm">Target WPM: <span id="targetWPM">30</span></div>
+                    </div>
+                    <div id="challengeTextDisplay" class="text-display"></div>
+                    <input type="text" id="challengeInput" class="text-input" autocomplete="off" placeholder="Type here..." />
+                    <div class="button-container">
+                        <button id="challengeStartButton" class="game-button">Start</button>
+                        <button id="challengeNextButton" class="game-button" style="display: none;">Next Level</button>
+                    </div>
+                </div>
+
+                <!-- Race Mode UI -->
+                <div id="raceUI" class="mode-ui hidden">
+                    <div class="race-track">
+                        <div class="racer player">
+                            <div class="progress-bar">
+                                <div class="player-progress"></div>
+                            </div>
+                            <span>You</span>
+                        </div>
+                        <div class="racer ai">
+                            <div class="progress-bar">
+                                <div class="ai-progress"></div>
+                            </div>
+                            <span>AI</span>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Zen Mode UI -->
-                <div id="zenUI" class="zen-container hidden">
+                <div id="zenUI" class="mode-ui hidden">
                     <div class="zen-stats">
+                        <div class="stat-box">
+                            <label>Words</label>
+                            <span id="zenWordCount">0</span>
+                        </div>
                         <div class="stat-box">
                             <label>WPM</label>
                             <span id="zenWPM">0</span>
@@ -99,32 +139,8 @@
                             <label>Time</label>
                             <span id="zenTime">0:00</span>
                         </div>
-                        <div class="stat-box">
-                            <span id="zenWordCount">0</span>
-                            <label>Words</label>
-                        </div>
                     </div>
-                    <div class="zen-input-container">
-                        <textarea id="zenInput" placeholder="Start typing anything..." class="zen-textarea"></textarea>
-                    </div>
-                </div>
-
-                <!-- Race Mode UI -->
-                <div id="raceUI" class="race-container hidden">
-                    <div class="race-progress">
-                        <div class="racer player">
-                            <div class="racer-label">You</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill player-progress"></div>
-                            </div>
-                        </div>
-                        <div class="racer ai">
-                            <div class="racer-label">AI</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill ai-progress"></div>
-                            </div>
-                        </div>
-                    </div>
+                    <textarea id="zenInput" placeholder="Start typing anything..."></textarea>
                 </div>
             </div>
         </div>
